@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrariaSourceGetter", "TerrariaSourceGetter\TerrariaSourceGetter.csproj", "{36533BD7-F41F-48D9-805F-51A7B0E77D7B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36533BD7-F41F-48D9-805F-51A7B0E77D7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36533BD7-F41F-48D9-805F-51A7B0E77D7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36533BD7-F41F-48D9-805F-51A7B0E77D7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36533BD7-F41F-48D9-805F-51A7B0E77D7B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

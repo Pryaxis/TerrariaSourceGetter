@@ -1,0 +1,27 @@
+name: publish
+
+on: [push]
+
+jobs:
+  ci:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.100'
+      - name: Publish .NetFramework
+        run: dotnet publish -f net462 -c Release .\TerrariaSourceGetter.sln
+      - name: Publish .NetCore
+        run: dotnet publish -f netcoreapp2.1 -c Release .\TerrariaSourceGetter.sln
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: TerrariaSourceGetter(.NetFramework)
+          path: TerrariaSourceGetter\bin\Release\net462\publish
+      - uses: actions/upload-artifact@master
+        with:
+          name: TerrariaSourceGetter(.NetCore)
+          path: TerrariaSourceGetter\bin\Release\netcoreapp2.1\publish
