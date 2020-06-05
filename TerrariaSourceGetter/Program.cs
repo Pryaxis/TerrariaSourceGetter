@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -92,15 +93,14 @@ namespace TerrariaSourceGetter
 
                 var csprojPath = Path.Combine(outputDirPath, $"{asmInfo.Assembly.Name.Name}.csproj");
                 File.WriteAllText(csprojPath, PostProcessProjectFile(File.ReadAllText(csprojPath)));
+            
+                progressReporter.Dispose();
                 
-                Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine($"Complete. Took {stopwatch.Elapsed.TotalSeconds}s");
             }
-            
-            progressReporter.Dispose();
         }
 
         //TODO: Operate xml doc
@@ -124,39 +124,107 @@ namespace TerrariaSourceGetter
             }
         }
         
-        const string URL = "https://terraria.org/system/dedicated_servers/archives/000/000/038/original/terraria-server-1404.zip";
-        const string FileName = "terraria-server-1404";
-        
+        const string BaseURL = "https://terraria.org/system/dedicated_servers/archives/000/000/{0:D3}/original/terraria-server-{1}.zip";
+        const string BaseFileName = "terraria-server-{0}";
+
+        private static readonly Dictionary<int, int> _versions = new Dictionary<int, int>
+        {
+            [39] = 1405,
+            [38] = 1404,
+            [37] = 1403,
+            [36] = 1402,
+            [35] = 1401,
+            
+            [34] = 1353,
+            [33] = 1352,
+            
+            [26] = 1344,
+            [25] = 1343,
+            [24] = 1342,
+            [23] = 1341,
+            [22] = 134,
+            
+            [21] = 1333,
+            [20] = 1332,
+            [19] = 1331,
+            [18] = 133,
+            
+            [15] = 1321,
+            [14] = 132,
+                
+            [13] = 1311,
+            [11] = 131,
+            
+            [11] = 131,
+            [9] = 1307,
+            [8] = 1306,
+            [7] = 1305,
+            [6] = 1304,
+            [5] = 1303,
+            [4] = 1302,
+            [3] = 1301,
+        };
+
         static void DecompileDedicatedServer()
         {
-            var zipName = $"{FileName}.zip";
+            bool inputValid = false;
+            var versions = _versions.Select(p => (p.Key, p.Value)).ToList();
+            int selectedVersion = 0;
+            while (!inputValid)
+            {
+                Console.Clear();
+                Console.WriteLine("Avaliable versions:");
+                for (int i = 0; i < versions.Count; i++)
+                {
+                    Console.WriteLine("{0, 3}.    {1, 6}".FormatWith(i, versions[i].Value));
+                }
+
+                Console.WriteLine("Input the No. of the version you want to decompile:");
+                if (int.TryParse(Console.ReadLine(), out int v))
+                {
+                    if (v >= 0 && v < versions.Count)
+                    {
+                        selectedVersion = v;
+                        inputValid = true;
+                    }
+                }
+            }
             
+            DecompileDedicatedServerOfVersion(versions[selectedVersion].Key);
+        }
+        
+        static void DecompileDedicatedServerOfVersion(int versionNumber)
+        {
+            var version = _versions[versionNumber];
+            var fileName = $"{BaseFileName.FormatWith(version)}";
+            var zipName = $"{BaseFileName.FormatWith(version)}.zip";
+
             if (File.Exists(zipName))
             {
                 Console.WriteLine("File existed, do you want to download it again? [y/N]");
                 if (Console.ReadKey().Key == ConsoleKey.Y)
-                    DownloadDedicatedServerBin(zipName);
+                    DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber, version), zipName);
                 Console.WriteLine();
             }
             else
             {
-                DownloadDedicatedServerBin(zipName);
+                DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber, version), zipName);
             }
 
-            if (Directory.Exists(FileName))
+            if (Directory.Exists(fileName))
             {
                 Console.WriteLine("There has been extracted files, do you want to extract it again? [y/N]");
                 if (Console.ReadKey().Key == ConsoleKey.Y)
-                    ExtractFiles(zipName);
+                    ExtractFiles(zipName, fileName);
                 Console.WriteLine();
             }
             else
             {
-                ExtractFiles(zipName);
+                ExtractFiles(zipName, fileName);
             }
 
             Console.WriteLine("Choose the platform you want to decompile: [W(Windows)/l(Linux)/m(Mac)/a(All)]");
-            var commonDirPath = Path.GetFullPath(Path.Combine(FileName, "1404"));
+            var commonDirPath = Path.GetFullPath(Path.Combine(fileName, version.ToString()));
             switch (Console.ReadKey().Key)
             {
             case ConsoleKey.L:
@@ -204,15 +272,15 @@ namespace TerrariaSourceGetter
             Decompile(asmInfo, additionalSearchDirs: new []{ realDirPath });
         }
 
-        static void ExtractFiles(string zipFile)
+        static void ExtractFiles(string zipFile, string targetDir)
         {
             Console.WriteLine("Start to extract files...");
-            Directory.CreateDirectory(FileName);
-            ZipFile.ExtractToDirectory(zipFile, FileName);
+            Directory.CreateDirectory(targetDir);
+            ZipFile.ExtractToDirectory(zipFile, targetDir);
             Console.WriteLine("Extracted");
         }
         
-        static void DownloadDedicatedServerBin(string fileName)
+        static void DownloadDedicatedServerBin(string url, string fileName)
         {
             using (var webClient = new WebClient())
             {
@@ -225,7 +293,7 @@ namespace TerrariaSourceGetter
                         pb.Progress.Report(args.ProgressPercentage / 100.0);
                         Console.ForegroundColor = ConsoleColor.White;
                     };
-                    webClient.DownloadFileTaskAsync(new Uri(URL), fileName).Wait();
+                    webClient.DownloadFileTaskAsync(new Uri(url), fileName).Wait();
                 }
             }
             Console.WriteLine();
