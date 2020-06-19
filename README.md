@@ -1,7 +1,7 @@
 # Terraria Source Getter
 
-A shitty useless tool to get compilable decompiled terraria server source code by one click.  
-It's a (temporary) alternative of our poor nuked [Sources](https://github.com/Pryaxis/Sources) repo.  
+A CLI tool to get compile-able decompiled Terraria server source code by one click.  
+It's an alternative of our [Pryaxis/Sources](https://github.com/Pryaxis/Sources) repo.  
 
 ## Usage
 
