@@ -123,66 +123,51 @@ namespace TerrariaSourceGetter
                 File.WriteAllBytes(Path.Combine(targetDir, $"{asmName}.dll"), r.GetResourceData());
             }
         }
+
         
-        const string BaseURL = "https://terraria.org/system/dedicated_servers/archives/000/000/{0:D3}/original/terraria-server-{1}.zip";
+        const string BaseURL = "https://terraria.org/api/download/pc-dedicated-server/terraria-server-{0}.zip";
         const string BaseFileName = "terraria-server-{0}";
 
-        private static readonly Dictionary<int, int> _versions = new Dictionary<int, int>
+        private static readonly List<int> _versions = new List<int>()
         {
-            [39] = 1405,
-            [38] = 1404,
-            [37] = 1403,
-            [36] = 1402,
-            [35] = 1401,
-            
-            [34] = 1353,
-            [33] = 1352,
-            
-            [26] = 1344,
-            [25] = 1343,
-            [24] = 1342,
-            [23] = 1341,
-            [22] = 134,
-            
-            [21] = 1333,
-            [20] = 1332,
-            [19] = 1331,
-            [18] = 133,
-            
-            [15] = 1321,
-            [14] = 132,
-                
-            [13] = 1311,
-            [11] = 131,
-            
-            [11] = 131,
-            [9] = 1307,
-            [8] = 1306,
-            [7] = 1305,
-            [6] = 1304,
-            [5] = 1303,
-            [4] = 1302,
-            [3] = 1301,
+            1423,
+            143,
+            1431,
+            1432,
+            1433,
+            1434,
+            1435,
+            1436,
+            144,
+            1441,
+            1442,
+            1443,
+            1444,
+            1445,
+            1446,
+            1447,
+            1448,
+            14481,
+            1449
         };
 
         static void DecompileDedicatedServer()
         {
             bool inputValid = false;
-            var versions = _versions.Select(p => (p.Key, p.Value)).ToList();
             int selectedVersion = 0;
             while (!inputValid)
             {
                 Console.Clear();
                 Console.WriteLine("Avaliable versions:");
-                for (int i = 0; i < versions.Count; i++)
+                for (int i = 0; i < _versions.Count; i++)
                 {
-                    Console.WriteLine("{0, 3}.    {1, 6}".FormatWith(i, versions[i].Value));
+                    Console.WriteLine("{0, 3}.    {1, 6}".FormatWith(i, _versions[i]));
                 }
 
                 Console.WriteLine("Input the No. of the version you want to decompile:");
                 if (int.TryParse(Console.ReadLine(), out int v))
                 {
-                    if (v >= 0 && v < versions.Count)
+                    if (v >= 0 && v < _versions.Count)
                     {
                         selectedVersion = v;
                         inputValid = true;
@@ -190,25 +175,24 @@ namespace TerrariaSourceGetter
                 }
             }
             
-            DecompileDedicatedServerOfVersion(versions[selectedVersion].Key);
+            DecompileDedicatedServerOfVersion(_versions[selectedVersion]);
         }
         
         static void DecompileDedicatedServerOfVersion(int versionNumber)
         {
-            var version = _versions[versionNumber];
-            var fileName = $"{BaseFileName.FormatWith(version)}";
-            var zipName = $"{BaseFileName.FormatWith(version)}.zip";
+            var fileName = $"{BaseFileName.FormatWith(versionNumber)}";
+            var zipName = $"{BaseFileName.FormatWith(versionNumber)}.zip";
 
             if (File.Exists(zipName))
             {
                 Console.WriteLine("File existed, do you want to download it again? [y/N]");
                 if (Console.ReadKey().Key == ConsoleKey.Y)
-                    DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber, version), zipName);
+                    DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber), zipName);
                 Console.WriteLine();
             }
             else
             {
-                DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber, version), zipName);
+                DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber), zipName);
             }
 
             if (Directory.Exists(fileName))
@@ -224,7 +208,7 @@ namespace TerrariaSourceGetter
             }
 
             Console.WriteLine("Choose the platform you want to decompile: [W(Windows)/l(Linux)/m(Mac)/a(All)]");
-            var commonDirPath = Path.GetFullPath(Path.Combine(fileName, version.ToString()));
+            var commonDirPath = Path.GetFullPath(Path.Combine(fileName, versionNumber.ToString()));
             switch (Console.ReadKey().Key)
             {
             case ConsoleKey.L:
