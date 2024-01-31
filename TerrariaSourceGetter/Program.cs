@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -187,7 +187,11 @@ namespace TerrariaSourceGetter
             {
                 Console.WriteLine("File existed, do you want to download it again? [y/N]");
                 if (Console.ReadKey().Key == ConsoleKey.Y)
+                {
+                    Console.WriteLine();
+                    File.Delete(zipName);
                     DownloadDedicatedServerBin(BaseURL.FormatWith(versionNumber), zipName);
+                }
                 Console.WriteLine();
             }
             else
@@ -199,8 +203,13 @@ namespace TerrariaSourceGetter
             {
                 Console.WriteLine("There has been extracted files, do you want to extract it again? [y/N]");
                 if (Console.ReadKey().Key == ConsoleKey.Y)
+                {
+                    Console.WriteLine();
+                    Directory.Delete(fileName, true);
                     ExtractFiles(zipName, fileName);
+                }
                 Console.WriteLine();
+
             }
             else
             {
